@@ -102,7 +102,14 @@ function startAdapter(options) {
                                 val[0] = 100;
                             }
                             val[0] = parseInt(val[0], 10);
-                            val = [parseInt((statePlay.fulltime / 100) * val[0], 10)];
+                            
+                            if (statePlay.fulltime > 0) {
+                                val = [parseInt((statePlay.fulltime / 100) * val[0], 10)];
+                            } else if (isStream) { // Check if Onlinestream 
+                                val = [0]; // Set Seek to 0 
+                            } else {
+                                val = [parseInt(statePlay.curtime, 10)];
+                            }
                             break;
                         case 'next':
                         case 'previous':
