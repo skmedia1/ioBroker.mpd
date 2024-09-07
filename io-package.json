@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "mpd",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "news": {
+      "2.1.1": {
+        "en": "Changed seek settings, checking if a stream or media is played. Bug fixes applied.",
+        "de": "Änderung der Seek-Einstellung, Prüfung, ob ein Stream oder eine Mediendatei gespielt wird. Fehlerbehebung durchgeführt.",
+        "ru": "Изменены настройки перемотки, проверяется, воспроизводится ли поток или медиафайл. Исправлены ошибки.",
+        "pt": "Alterações nas configurações de seek, verificando se é um stream ou mídia que está sendo reproduzido. Correções de bugs aplicadas.",
+        "nl": "Aanpassing van de zoekinstellingen, controle of er een stream of media wordt afgespeeld. Fouten opgelost.",
+        "fr": "Modification des paramètres de recherche, vérification si un flux ou un média est joué. Corrections de bugs appliquées.",
+        "it": "Modifica delle impostazioni di ricerca, controllo se viene riprodotto un flusso o un file multimediale. Correzione dei bug applicata.",
+        "es": "Cambio en la configuración de búsqueda, comprobación si se está reproduciendo un stream o archivo multimedia. Se han solucionado errores.",
+        "pl": "Zmiana ustawień wyszukiwania, sprawdzanie, czy odtwarzany jest strumień lub media. Zastosowano poprawki błędów.",
+        "uk": "Зміна налаштувань пошуку, перевірка, чи відтворюється потік або медіафайл. Виправлено помилки.",
+        "zh-cn": "更改查找设置，检查是播放流还是媒体。应用了错误修复。"
+      },
       "2.1.0": {
         "en": "Adapter requires node.js >= 18 and js-controller >= 5 now\nDependencies have been updated",
         "de": "Adapter benötigt node.js >= 18 und js-controller >= 5 jetzt\nAbhängigkeiten wurden aktualisiert",
