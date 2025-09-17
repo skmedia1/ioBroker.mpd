@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "mpd",
-    "version": "2.1.1",
+    "version": "2.3.1",
     "news": {
-      "2.1.1": {
+      "2.2.0": {
         "en": "Changed seek settings, checking if a stream or media is played. Bug fixes applied.",
         "de": "Änderung der Seek-Einstellung, Prüfung, ob ein Stream oder eine Mediendatei gespielt wird. Fehlerbehebung durchgeführt.",
         "ru": "Изменены настройки перемотки, проверяется, воспроизводится ли поток или медиафайл. Исправлены ошибки.",
@@ -1170,8 +1170,32 @@
         "name": "playback duration",
         "type": "string",
         "read": true,
-        "write": true,
+        "write": false,
         "def": ""
+      },
+      "native": {}
+    },
+    {
+      "_id": "lastloadedplaylist",
+      "type": "state",
+      "common": {
+        "name": "Last loaded playlist",
+        "type": "string",
+        "role": "text",
+        "read": true,
+        "write": false
+      },
+      "native": {}
+    },
+    {
+      "_id": "partition",
+      "type": "state",
+      "common": {
+        "name": "Partition",
+        "type": "string",
+        "role": "text",
+        "read": true,
+        "write": false
       },
       "native": {}
     },
@@ -1196,7 +1220,7 @@
         "name": "playback duration",
         "type": "string",
         "read": true,
-        "write": true,
+        "write": false,
         "def": ""
       },
       "native": {}
@@ -1285,8 +1309,9 @@
         "name": "volume",
         "type": "number",
         "role": "level.volume",
+        "unit": "%",
         "read": true,
-        "write": false,
+        "write": true,
         "min": 0,
         "max": 100
       },
@@ -1574,6 +1599,18 @@
         "name": "albums",
         "type": "string",
         "role": "media"
+      },
+      "native": {}
+    },
+    {
+      "_id": "isStream",
+      "type": "state",
+      "common": {
+        "name": "Is Stream",
+        "type": "boolean",
+        "role": "indicator",
+        "read": true,
+        "write": false
       },
       "native": {}
     },

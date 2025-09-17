@@ -94,14 +94,12 @@ function startAdapter(options) {
                             val = mute(state.val);
                             break;
                         case 'seek':
+                            if (!statePlay.fulltime || statePlay.fulltime <= 0) {
+                                adapter.log.debug('seek ignored: no duration known (stream)');
+                                return;
+                            }
                             command = 'seekcur';
-                            if (val[0] < 0) {
-                                val[0] = 0;
-                            }
-                            if (val[0] > 100) {
-                                val[0] = 100;
-                            }
-                            val[0] = parseInt(val[0], 10);
+                            val[0] = Math.max(0, Math.min(100, parseInt(val[0], 10)));
                             val = [parseInt((statePlay.fulltime / 100) * val[0], 10)];
                             break;
                         case 'next':
@@ -251,6 +249,7 @@ function getMpdStatus(arr, cb) {
                     for (const key in obj) {
                         if (obj.hasOwnProperty(key)) {
                             const ids = key.toLowerCase();
+                            if (ids === 'duration' || ids === 'format' || ids === 'added') continue;
                             states[ids] = obj[key];
                         }
                     }
@@ -280,7 +279,6 @@ function convStoredPlaylists(obj) {
 }
 
 function _shift() {
-    let progress;
     if (states.songid !== statePlay.songid) {
         statePlay.songid = states.songid;
         clearTag();
@@ -288,13 +286,23 @@ function _shift() {
     if (states.time) {
         const prs = states.time.split(':');
         if (prs[0] && prs[1]) {
-            statePlay.curtime = parseInt(prs[0], 10);
+            statePlay.curtime  = parseInt(prs[0], 10);
             statePlay.fulltime = parseInt(prs[1], 10);
-            progress = parseFloat((statePlay.curtime * 100) / (statePlay.fulltime || 1)).toFixed(2);
-            states['current_duration_s'] = statePlay.fulltime;
-            states['current_duration'] = secondsToText(statePlay.fulltime);
+
             states['current_elapsed'] = secondsToText(statePlay.curtime);
-            states['seek'] = progress || 0;
+
+            if (statePlay.fulltime > 0) {
+                const pct = Math.round((statePlay.curtime * 100) / statePlay.fulltime);
+                states['seek'] = Math.max(0, Math.min(100, pct));
+                states['current_duration_s'] = statePlay.fulltime;
+                states['current_duration']   = secondsToText(statePlay.fulltime);
+            } else {
+                states['seek'] = 100;
+                states['current_duration_s'] = 0;
+                states['current_duration']   = '00:00';
+            }
+
+            states['isStream'] = !(statePlay.fulltime > 0); // optional
         }
     }
 
@@ -302,16 +310,9 @@ function _shift() {
     states['repeat'] = toBool(states['repeat']);
     states['random'] = toBool(states['random']);
 
-    adapter.log.debug(`PLAY STATUS - ${states.state}`);
+    if (states.state === 'stop') clearTag();
+    statePlay.isPlay = (states.state === 'play');
 
-    if (states.state === 'stop') {
-        clearTag();
-    }
-    if (states.state === 'stop' || states.state === 'pause') {
-        statePlay.isPlay = false;
-    } else if (states.state === 'play') {
-        statePlay.isPlay = true;
-    }
     setObj();
 }
 
@@ -359,23 +360,31 @@ const numberObjects = require('./io-package.json').instanceObjects.filter(obj =>
 
 async function setObj(id) {
     if (id && id === 'lsinfo') {
-        await adapter.setStateAsync(id, {val: states[id], ack: true});
+        await adapter.setStateAsync(id, { val: states[id], ack: true });
         old_states['lsinfo'] = states['lsinfo'];
     } else {
         for (const key in states) {
-            if (Object.prototype.hasOwnProperty.call(states, key)) {
-                if (!Object.prototype.hasOwnProperty.call(old_states, key)) {
-                    old_states[key] = '';
-                }
-                if (states[key] !== old_states[key]) {
-                    if (numberObjects.includes(key)) {
-                        states[key] = parseFloat(states[key]);
-                    }
+            if (!Object.prototype.hasOwnProperty.call(states, key)) continue;
 
-                    await adapter.setStateAsync(key, {val: states[key], ack: true});
-                    old_states[key] = states[key];
-                }
+            if (!Object.prototype.hasOwnProperty.call(old_states, key)) {
+                old_states[key] = '';
             }
+            if (states[key] === old_states[key]) continue;
+
+            if (numberObjects.includes(key)) {
+                states[key] = parseFloat(states[key]);
+            }
+
+            if (key === 'seek') {
+                let val = Number(states[key]);
+                if (!Number.isFinite(val)) continue;
+                if (val > 100) val = 100;
+                if (val < 0) val = 0;
+                states[key] = val;
+            }
+
+            await adapter.setStateAsync(key, { val: states[key], ack: true });
+            old_states[key] = states[key];
         }
     }
     getMpdTime();
